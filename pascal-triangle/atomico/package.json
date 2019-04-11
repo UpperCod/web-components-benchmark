@@ -11,8 +11,8 @@
 		"url": "https://github.com/"
 	},
 	"scripts": {
-		"build": "rollup -c",
-		"dev": "rollup -c -w",
+		"build": "npx rollup -c",
+		"dev": "npx rollup -c -w",
 		"postbuild": "cp -R public/* dist"
 	},
 	"dependencies": {
