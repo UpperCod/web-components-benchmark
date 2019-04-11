@@ -45,7 +45,7 @@ let plugins = [
 ];
 
 if (process.env.ROLLUP_WATCH) {
-	plugins.push(browsersync({ server: "public" }));
+	plugins.push(browsersync({ server: "dist" }));
 } else {
 	process.env.BUILD = "production";
 	plugins.push(terser());

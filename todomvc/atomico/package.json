@@ -3,8 +3,8 @@
 	"version": "0.0.0",
 	"description": "todo",
 	"source": "src/index.js",
-	"module": "public/dist/atomico.mjs",
-	"unpkg": "public/dist/atomico.umd.js",
+	"module": "dist/src/atomico.mjs",
+	"unpkg": "dist/src/atomico.umd.js",
 	"author": "Matias Trujillo ",
 	"repository": {
 		"type": "git",

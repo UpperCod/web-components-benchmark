@@ -2,54 +2,134 @@ function e(e,t,n){var r=arguments;if(t=t||{},arguments.length>3){n=[n];for(var o
 
 let r$1=Promise.resolve(),s$1=0,i$1=Z("host");function a(t){return JSON.parse(t)}class Element extends HTMLElement{constructor(){let i;super(),this.props={},this.render=this.render.bind(this),this.renderID="@wc."+s$1++,this.update=(s=>{this.props={...this.props,...s},i||(i=!0,r$1.then(()=>{i=!1,P(Z(this.render,this.props),this,this.renderID);}));}),this.update();}static get observedAttributes(){let t=this.attributes||{},e=[];for(let r in t)e.push(r.replace(/([A-Z])/g,"-$1").toLowerCase());return e}disconnectedCallback(){P(i$1,this,this.renderID);}attributeChangedCallback(t,e,r){if(e==r)return;t=t.replace(/-(\w)/g,(t,e)=>e.toUpperCase());let s,{attributes:i}=this.constructor,o=i[t];try{switch(o){case Number:r=a(r);break;case Boolean:r=1==(r=""==r||a(r))||0==r?1==r:r;break;case Object:case Array:r=a(r);}}catch(t){s=!0;}if(s||{}.toString.call(r)!=`[object ${o.name}]`)throw`the attribute [${t}] must be of the type [${o.name}]`;this.update({[t]:r});}render(){return i$1}}
 
-function TriangleItem({ text }) {
-	return Z('span', null, text);
+function styleInject(css, ref) {
+  if ( ref === void 0 ) ref = {};
+  var insertAt = ref.insertAt;
+
+  if (!css || typeof document === 'undefined') { return; }
+
+  var head = document.head || document.getElementsByTagName('head')[0];
+  var style = document.createElement('style');
+  style.type = 'text/css';
+
+  if (insertAt === 'top') {
+    if (head.firstChild) {
+      head.insertBefore(style, head.firstChild);
+    } else {
+      head.appendChild(style);
+    }
+  } else {
+    head.appendChild(style);
+  }
+
+  if (style.styleSheet) {
+    style.styleSheet.cssText = css;
+  } else {
+    style.appendChild(document.createTextNode(css));
+  }
 }
 
-let memo = {};
+var css = "input{background:rgba(0,0,0,.003);width:100%;font-size:24px;color:inherit;padding:6px;border:1px solid #ccc;box-shadow:inset 0 -1px 5px 0 rgba(0,0,0,.2);box-sizing:border-box}";
+styleInject(css);
 
-function generateData(rows) {
-	const n = rows;
-
-	const data = [];
-	data[0] = [1];
-	data[1] = [1, 1];
-
-	for (let row = 2; row < n; row++) {
-		data[row] = [1];
-
-		for (let col = 1; col <= row - 1; col++) {
-			const prevRow = data[row - 1];
-			data[row][col] = prevRow[col] + prevRow[col - 1];
-			data[row].push(1);
-		}
-	}
-	return data;
+let incrementId = 0;
+/**
+ * Input component, shows the input that collects the texts for the creation of a task
+ * @param {object} props
+ * @param {function} props.onChange
+ * @param {string} props.placeholder
+ * @return {object}
+ */
+function Input(props) {
+	return (
+		Z('div', { shadowDom: true,}
+, Z('style', null, css)
+, Z('form', {
+				onSubmit: event => {
+					event.preventDefault();
+					if (props.onChange)
+						props.onChange({
+							text: event.target.input.value,
+							id: incrementId++
+						});
+					event.target.reset();
+				},}
+			
+, Z('input', { name: "input", type: "text", placeholder: props.placeholder,} )
+)
+)
+	);
 }
 
-class PascalTriangle extends Element {
+var css$1 = ":host{display:flex}input{text-align:center;border:none;-webkit-appearance:none;appearance:none;padding:.2rem .5rem;outline:none}input:after{content:url('data:image/svg+xml;utf8,<svg%20xmlns%3D\"http%3A//www.w3.org/2000/svg\"%20width%3D\"40\"%20height%3D\"40\"%20viewBox%3D\"-10%20-18%20100%20135\"><circle%20cx%3D\"50\"%20cy%3D\"50\"%20r%3D\"50\"%20fill%3D\"none\"%20stroke%3D\"%23ededed\"%20stroke-width%3D\"3\"/></svg>')}input:checked:after{content:url('data:image/svg+xml;utf8,<svg%20xmlns%3D\"http%3A//www.w3.org/2000/svg\"%20width%3D\"40\"%20height%3D\"40\"%20viewBox%3D\"-10%20-18%20100%20135\"><circle%20cx%3D\"50\"%20cy%3D\"50\"%20r%3D\"50\"%20fill%3D\"none\"%20stroke%3D\"%23bddad5\"%20stroke-width%3D\"3\"/><path%20fill%3D\"%235dc2af\"%20d%3D\"M72%2025L42%2071%2027%2056l-4%204%2020%2020%2034-52z\"/></svg>')}input:checked~.text{color:#d9d9d9;text-decoration:line-through}.group{display:flex;align-items:center}.text{flex:0%;padding:1rem;font-size:24px;text-align:left}button{color:#cc9a9a;background:none;border:0;font-size:30px;margin-right:1rem}";
+styleInject(css$1);
+
+/**
+ * Component article, shows the task and allows you to mark how the
+ * elimination(props.onRemove) of this has been done(props.onToggle) or eliminated
+ * @param {object} props
+ * @param {integer|string} props.key
+ * @param {function} props.onToggle
+ * @param {boolean} props.checked
+ * @param {string} props.text
+ * @param {function} props.onRemove
+ * @return {object}
+ */
+function Item(props) {
+	return (
+		Z('div', { shadowDom: true, key: props.key,}
+, Z('style', null, css$1)
+, Z('input', {
+				type: "checkbox",
+				onChange: props.onToggle,
+				checked: props.checked,}
+			)
+, Z('div', { class: "text",}, props.text)
+, Z('button', { onClick: props.onRemove,}, "x")
+)
+	);
+}
+
+var css$2 = ":host{display:block;box-shadow:0 2px 4px 0 rgba(0,0,0,.2),0 25px 50px 0 rgba(0,0,0,.1);background:#fff}";
+styleInject(css$2);
+
+class TagTodo extends Element {
 	render() {
-		let [state, setState] = R(100);
-		if (!memo[state]) memo[state] = generateData(state);
-		let list = memo[state];
+		let [state, setState] = R(() => [
+			{ text: "my initial todo", checked: false, id: -1 >>> 0 },
+			{ text: "Learn about Web Components", checked: true, id: -2 >>> 0 }
+		]);
 		return (
 			Z('host', { shadowDom: true,}
+, Z('style', null, css$2)
+, Z(Input, {
+					placeholder: "What needs to be done?"    ,
+					onChange: task => {
+						setState(state.concat(task));
+					},}
+				)
 , Z('div', null
-, Z('button', { onClick: () => state != 10 && setState(10),}, "Load 10" )
-, Z('button', { onClick: () => state != 100 && setState(100),}, "Load 100"
-
-)
-, Z('button', { onClick: () => state != 500 && setState(500),}, "Load 500"
-
-)
-)
-, Z('div', null
-, list.map(line => (
-						Z('div', null
-, line.map(item => (
-								Z(TriangleItem, { text: item,} )
-							))
-)
+, state.map(({ text, checked, id }, localIndex) => (
+						Z(Item, {
+							key: id,
+							text: text,
+							checked: checked,
+							onRemove: () => {
+								setState(state.filter((data, index) => index !== localIndex));
+							},
+							onToggle: () => {
+								setState(
+									state.map((data, index) =>
+										index === localIndex
+											? {
+													...data,
+													checked: !data.checked
+											  }
+											: data
+									)
+								);
+							},}
+						)
 					))
 )
 )
@@ -57,7 +137,7 @@ class PascalTriangle extends Element {
 	}
 }
 
-customElements.define("pascal-triangle", PascalTriangle);
+customElements.define("atomico-todo", TagTodo);
 
-export default PascalTriangle;
+export default TagTodo;
 //# sourceMappingURL=atomico.mjs.map
